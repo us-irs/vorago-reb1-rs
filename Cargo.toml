@@ -1,0 +1,9 @@
+[package]
+name = "vorago-reb1"
+description = "BSP crate for the Vorago REB1 development Board"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
