@@ -1,17 +1,24 @@
 [package]
 name = "vorago-reb1"
-description = "BSP crate for the Vorago REB1 development Board"
 version = "0.1.0"
-edition = "2018"
+authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
+edition = "2021"
+description = "Board Support Crate for the Vorago REB1 development board"
+homepage = "https://github.com/robamu/vorago-reb1-rs"
+repository = "https://github.com/robamu/vorago-reb1-rs"
 license = "MIT OR Apache-2.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+keywords = ["no-std", "reb1", "cortex-m", "vorago", "va108xx"]
+categories = ["embedded", "no-std", "hardware-support"]
 
 [dependencies]
 
+cortex-m = "0.7.3"
 cortex-m-rt = "0.7.0"
+panic-halt = "0.2"
+embedded-hal = "0.2.6"
+panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
+rtt-target = { version = "0.3", features = ["cortex-m"] }
 
-[dependencies.va108xx]
-path = "../va108xx-rs"
-version = "0.1.0"
+[dependencies.va108xx-hal]
+version = "0.1"
 features = ["rt"]
