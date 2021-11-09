@@ -1,3 +1,7 @@
+[![Crates.io](https://img.shields.io/crates/v/vorago-reb1)](https://crates.io/crates/vorago-reb1)
+[![ci](https://github.com/robamu-org/vorago-reb1/actions/workflows/ci.yml/badge.svg)](https://github.com/robamu-org/vorago-reb1/actions/workflows/ci.yml)
+[![docs.rs](https://img.shields.io/docsrs/vorago-reb1)](https://docs.rs/vorago-reb1)
+
 # Rust BSP for the Vorago REB1 development board
 
 This is the Rust **B**oard **S**upport **P**ackage crate for the Vorago REB1 development board.
