@@ -1,7 +1,7 @@
 MEMORY
 {
-	ROM : ORIGIN = 0x00000000, LENGTH = 0x20000 /* 128K */
-	RAM: ORIGIN = 0x10000000, LENGTH = 0x08000 /* 32K */
+	FLASH : ORIGIN = 0x00000000, LENGTH = 0x20000 /* 128K */
+	RAM : ORIGIN = 0x10000000, LENGTH = 0x08000 /* 32K */
 }
 
 /* This is where the call stack will be allocated. */
