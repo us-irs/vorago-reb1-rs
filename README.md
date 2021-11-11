@@ -25,6 +25,12 @@ you can build the blinky example with
 cargo build --example blinky-leds
 ```
 
+If you have not done this yet, it is recommended to read some of the excellent resources
+available to learn Rust:
+
+- [Rust Embedded Book](https://docs.rust-embedded.org/book/)
+- [Rust Discovery Book](https://docs.rust-embedded.org/discovery/)
+
 ## Flashing from the command line
 
 A `jlink.gdb` file is provided to allow flashing of the board from the command line.
