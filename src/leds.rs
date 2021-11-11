@@ -1,25 +1,22 @@
 use va108xx_hal::{
-    gpio::{
-        porta::{Parts, PA10, PA6, PA7},
-        Output, Pin, PushPull,
-    },
-    pac::{IOCONFIG, PORTA},
+    gpio::dynpins::DynPin,
+    gpio::pins::{Pin, PinsA, PushPullOutput, PA10, PA6, PA7},
     prelude::*,
 };
 
-pub type LD2 = PA10<Output<PushPull>>;
-pub type LD3 = PA7<Output<PushPull>>;
-pub type LD4 = PA6<Output<PushPull>>;
+pub type LD2 = Pin<PA10, PushPullOutput>;
+pub type LD3 = Pin<PA7, PushPullOutput>;
+pub type LD4 = Pin<PA6, PushPullOutput>;
 
 pub struct Leds {
     leds: [Led; 3],
 }
 
 impl Leds {
-    pub fn new(led_parts: Parts, iocfg: &mut IOCONFIG, porta: &mut PORTA) -> Self {
-        let led2 = led_parts.pa10.into_push_pull_output(iocfg, porta);
-        let led3 = led_parts.pa7.into_push_pull_output(iocfg, porta);
-        let led4 = led_parts.pa6.into_push_pull_output(iocfg, porta);
+    pub fn new(led_parts: PinsA) -> Self {
+        let led2 = led_parts.pa10.into_push_pull_output();
+        let led3 = led_parts.pa7.into_push_pull_output();
+        let led4 = led_parts.pa6.into_push_pull_output();
         Leds {
             leds: [led2.into(), led3.into(), led4.into()],
         }
@@ -55,7 +52,7 @@ impl core::ops::IndexMut<usize> for Leds {
 }
 
 pub struct Led {
-    pin: Pin<Output<PushPull>>,
+    pin: DynPin,
 }
 
 macro_rules! ctor {
@@ -64,7 +61,7 @@ macro_rules! ctor {
 			impl From<$ldx> for Led {
 				fn from(led: $ldx) -> Self {
 					Led {
-						pin: led.downgrade(),
+						pin: led.into()
 					}
 				}
 			}

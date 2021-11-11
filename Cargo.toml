@@ -1,6 +1,6 @@
 [package]
 name = "vorago-reb1"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
 edition = "2021"
 description = "Board Support Crate for the Vorago REB1 development board"
@@ -20,5 +20,5 @@ panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
 rtt-target = { version = "0.3", features = ["cortex-m"] }
 
 [dependencies.va108xx-hal]
-version = "0.1"
+version = "0.2"
 features = ["rt"]
