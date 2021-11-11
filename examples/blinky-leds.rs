@@ -9,7 +9,7 @@
 use cortex_m_rt::entry;
 use embedded_hal::digital::v2::ToggleableOutputPin;
 use panic_halt as _;
-use va108xx_hal::{pac, prelude::*};
+use va108xx_hal::{gpio::pins::PinsA, pac, prelude::*};
 use vorago_reb1::leds::Leds;
 
 // REB LED pin definitions. All on port A
@@ -27,7 +27,7 @@ enum LibType {
 #[entry]
 fn main() -> ! {
     let mut dp = pac::Peripherals::take().unwrap();
-    let porta = dp.PORTA.split(&mut dp.SYSCONFIG).unwrap();
+
     let lib_type = LibType::Bsp;
 
     match lib_type {
@@ -60,15 +60,10 @@ fn main() -> ! {
             }
         }
         LibType::Hal => {
-            let mut led1 = porta
-                .pa10
-                .into_push_pull_output(&mut dp.IOCONFIG, &mut dp.PORTA);
-            let mut led2 = porta
-                .pa7
-                .into_push_pull_output(&mut dp.IOCONFIG, &mut dp.PORTA);
-            let mut led3 = porta
-                .pa6
-                .into_push_pull_output(&mut dp.IOCONFIG, &mut dp.PORTA);
+            let pins = PinsA::new(&mut dp.SYSCONFIG, Some(dp.IOCONFIG), dp.PORTA);
+            let mut led1 = pins.pa10.into_push_pull_output();
+            let mut led2 = pins.pa7.into_push_pull_output();
+            let mut led3 = pins.pa6.into_push_pull_output();
             for _ in 0..10 {
                 led1.set_low().ok();
                 led2.set_low().ok();
@@ -89,7 +84,7 @@ fn main() -> ! {
             }
         }
         LibType::Bsp => {
-            let mut leds = Leds::new(porta, &mut dp.IOCONFIG, &mut dp.PORTA);
+            let mut leds = Leds::new(PinsA::new(&mut dp.SYSCONFIG, Some(dp.IOCONFIG), dp.PORTA));
             loop {
                 for _ in 0..10 {
                     // Blink all LEDs quickly
