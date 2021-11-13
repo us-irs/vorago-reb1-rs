@@ -84,7 +84,12 @@ fn main() -> ! {
             }
         }
         LibType::Bsp => {
-            let mut leds = Leds::new(PinsA::new(&mut dp.SYSCONFIG, Some(dp.IOCONFIG), dp.PORTA));
+            let pinsa = PinsA::new(&mut dp.SYSCONFIG, Some(dp.IOCONFIG), dp.PORTA);
+            let mut leds = Leds::new(
+                pinsa.pa10.into_push_pull_output(),
+                pinsa.pa7.into_push_pull_output(),
+                pinsa.pa6.into_push_pull_output(),
+            );
             loop {
                 for _ in 0..10 {
                     // Blink all LEDs quickly
