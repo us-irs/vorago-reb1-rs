@@ -14,11 +14,13 @@ categories = ["embedded", "no-std", "hardware-support"]
 
 cortex-m = "0.7.3"
 cortex-m-rt = "0.7.0"
-panic-halt = "0.2"
 embedded-hal = "0.2.6"
-panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
-rtt-target = { version = "0.3", features = ["cortex-m"] }
 
 [dependencies.va108xx-hal]
 version = "0.2.1"
 features = ["rt"]
+
+[dev-dependencies]
+panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
+rtt-target = { version = "0.3", features = ["cortex-m"] }
+panic-halt = "0.2"
