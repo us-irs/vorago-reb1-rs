@@ -1,6 +1,6 @@
 [package]
 name = "vorago-reb1"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
 edition = "2021"
 description = "Board Support Crate for the Vorago REB1 development board"
@@ -9,9 +9,6 @@ repository = "https://github.com/robamu/vorago-reb1-rs"
 license = "MIT OR Apache-2.0"
 keywords = ["no-std", "reb1", "cortex-m", "vorago", "va108xx"]
 categories = ["embedded", "no-std", "hardware-support"]
-
-[package.metadata.docs.rs]
-features = ["rt"]
 
 [dependencies]
 cortex-m = "0.7.3"
