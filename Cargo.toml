@@ -20,5 +20,5 @@ panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
 rtt-target = { version = "0.3", features = ["cortex-m"] }
 
 [dependencies.va108xx-hal]
-version = "0.2"
+version = "0.2.1"
 features = ["rt"]
