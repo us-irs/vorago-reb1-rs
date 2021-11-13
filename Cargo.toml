@@ -1,6 +1,6 @@
 [package]
 name = "vorago-reb1"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
 edition = "2021"
 description = "Board Support Crate for the Vorago REB1 development board"

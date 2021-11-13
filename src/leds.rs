@@ -1,6 +1,11 @@
+//! # API for using the REB1 LEDs
+//!
+//! ## Examples
+//!
+//! - [LED example](https://github.com/robamu-org/vorago-reb1-rs/blob/main/examples/blinky-leds.rs)
 use va108xx_hal::{
     gpio::dynpins::DynPin,
-    gpio::pins::{Pin, PinsA, PushPullOutput, PA10, PA6, PA7},
+    gpio::pins::{Pin, PushPullOutput, PA10, PA6, PA7},
     prelude::*,
 };
 
@@ -13,12 +18,9 @@ pub struct Leds {
 }
 
 impl Leds {
-    pub fn new(led_parts: PinsA) -> Self {
-        let led2 = led_parts.pa10.into_push_pull_output();
-        let led3 = led_parts.pa7.into_push_pull_output();
-        let led4 = led_parts.pa6.into_push_pull_output();
+    pub fn new(led_pin1: LD2, led_pin2: LD3, led_pin3: LD4) -> Leds {
         Leds {
-            leds: [led2.into(), led3.into(), led4.into()],
+            leds: [led_pin1.into(), led_pin2.into(), led_pin3.into()],
         }
     }
 }
@@ -72,14 +74,14 @@ macro_rules! ctor {
 ctor!(LD2, LD3, LD4);
 
 impl Led {
-    /// Turns the LED off
+    /// Turns the LED off. Setting the pin high actually turns the LED off
     pub fn off(&mut self) {
-        self.pin.set_low().ok();
+        self.pin.set_high().ok();
     }
 
-    /// Turns the LED on
+    /// Turns the LED on. Setting the pin low actually turns the LED on
     pub fn on(&mut self) {
-        self.pin.set_high().ok();
+        self.pin.set_low().ok();
     }
 
     /// Toggles the LED
