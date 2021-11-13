@@ -6,7 +6,7 @@ use core::cell::{Cell, RefCell};
 
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
-use panic_halt as _;
+use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
 use va108xx_hal::{
     clock::{set_clk_div_register, FilterClkSel},

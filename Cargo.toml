@@ -10,8 +10,10 @@ license = "MIT OR Apache-2.0"
 keywords = ["no-std", "reb1", "cortex-m", "vorago", "va108xx"]
 categories = ["embedded", "no-std", "hardware-support"]
 
-[dependencies]
+[package.metadata.docs.rs]
+features = ["rt"]
 
+[dependencies]
 cortex-m = "0.7.3"
 cortex-m-rt = "0.7.0"
 embedded-hal = "0.2.6"
