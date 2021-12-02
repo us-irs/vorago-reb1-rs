@@ -2,7 +2,7 @@
 #![no_main]
 #![no_std]
 
-use core::cell::{Cell, RefCell};
+use core::cell::RefCell;
 
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
@@ -14,13 +14,12 @@ use va108xx_hal::{
     pac::{self, interrupt},
     prelude::*,
     time::Hertz,
-    timer::set_up_ms_timer,
+    timer::{default_ms_irq_handler, set_up_ms_timer},
 };
 use vorago_reb1::button::Button;
 use vorago_reb1::leds::Leds;
 
 static LEDS: Mutex<RefCell<Option<Leds>>> = Mutex::new(RefCell::new(None));
-static MS_COUNTER: Mutex<Cell<u32>> = Mutex::new(Cell::new(0));
 static BUTTON: Mutex<RefCell<Option<Button>>> = Mutex::new(RefCell::new(None));
 
 #[derive(Debug, PartialEq)]
@@ -95,11 +94,7 @@ fn unmask_irqs() {
 
 #[interrupt]
 fn OC0() {
-    cortex_m::interrupt::free(|cs| {
-        let mut ms = MS_COUNTER.borrow(cs).get();
-        ms += 1;
-        MS_COUNTER.borrow(cs).set(ms);
-    });
+    default_ms_irq_handler();
 }
 
 #[interrupt]
