@@ -1,4 +1,4 @@
-//! Minimal blinky for the REB1 board using only PAC features
+//! Blinky button application for the REB1 board
 #![no_main]
 #![no_std]
 
