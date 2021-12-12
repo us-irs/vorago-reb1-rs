@@ -9,7 +9,6 @@
             "request": "launch",
             "name": "Debug Blinky",
             "servertype": "jlink",
-            "gdbPath": "/usr/bin/gdb-multiarch",
             "cwd": "${workspaceRoot}",
             "device": "VA10820",
             "svdFile": "../va108xx-rs/va108xx.svd",

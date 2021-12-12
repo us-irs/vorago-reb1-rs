@@ -66,6 +66,17 @@ the [`Cortex-Debug` plugin](https://marketplace.visualstudio.com/items?itemName=
 Some sample configuration files for VS code were provided as well. You can simply use `Run and Debug`
 to automatically rebuild and flash your application.
 
+The `tasks.json` and the `launch.json` files are generic and you can use them immediately by
+opening the folder in VS code or adding it to a workspace.
+
+If you would like to use a custom GDB application, you can specify the gdb binary in the following
+configuration variables in your `settings.json`:
+
+- `"cortex-debug.gdbPath"`
+- `"cortex-debug.gdbPath.linux"`
+- `"cortex-debug.gdbPath.windows"`
+- `"cortex-debug.gdbPath.osx"`
+
 ## Flashing the non-volatile memory
 
 Coming Soon
