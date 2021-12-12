@@ -14,6 +14,7 @@ categories = ["embedded", "no-std", "hardware-support"]
 cortex-m = "0.7.3"
 cortex-m-rt = "0.7.0"
 embedded-hal = "0.2.6"
+dummy-pin = "0.1.1"
 
 [dependencies.max116xx-10bit]
 path = "../max116xx-10bit"

@@ -2,8 +2,8 @@
 //!
 //! ## Examples
 //!
-//! - [Button Blinky with Interrupts](https://github.com/robamu-org/vorago-reb1-rs/blob/main/examples/blinky-button-irq.rs)
-//! - [Button Blinky with Interrupts using RTIC](https://github.com/robamu-org/vorago-reb1-rs/blob/main/examples/blinky-button-rtic.rs)
+//! - [Button Blinky with IRQs](https://egit.irs.uni-stuttgart.de/rust/vorago-reb1/src/branch/main/examples/blinky-button-irq.rs)
+//! - [Button Blinky with IRQs and RTIC](https://egit.irs.uni-stuttgart.de/rust/vorago-reb1/src/branch/main/examples/blinky-button-rtic.rs)
 use va108xx_hal::{
     gpio::{FilterClkSel, FilterType, InputFloating, InterruptEdge, InterruptLevel, Pin, PA11},
     pac,

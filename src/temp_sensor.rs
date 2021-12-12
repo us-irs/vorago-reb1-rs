@@ -4,7 +4,7 @@
 //!
 //! ## Examples
 //!
-//! - [Temperature Sensor example](https://github.com/robamu-org/vorago-reb1-rs/blob/main/examples/temp-sensor.rs)
+//! - [Temperature Sensor example](https://egit.irs.uni-stuttgart.de/rust/vorago-reb1/src/branch/main/examples/adt75-temp-sensor.rs)
 use cortex_m::prelude::_embedded_hal_blocking_i2c_Write;
 use embedded_hal::blocking::i2c::{Read, SevenBitAddress};
 use va108xx_hal::{

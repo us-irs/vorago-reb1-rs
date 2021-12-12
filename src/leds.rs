@@ -2,7 +2,9 @@
 //!
 //! ## Examples
 //!
-//! - [LED example](https://github.com/robamu-org/vorago-reb1-rs/blob/main/examples/blinky-leds.rs)
+//! - [LED example](https://egit.irs.uni-stuttgart.de/rust/vorago-reb1/src/branch/main/examples/blinky-leds.rs)
+//! - [Button Blinky using IRQs](https://egit.irs.uni-stuttgart.de/rust/vorago-reb1/src/branch/main/examples/blinky-button-irq.rs)
+//! - [Button Blinky using IRQs and RTIC](https://egit.irs.uni-stuttgart.de/rust/vorago-reb1/src/branch/main/examples/blinky-button-rtic.rs)
 use va108xx_hal::{
     gpio::dynpins::DynPin,
     gpio::pins::{Pin, PushPullOutput, PA10, PA6, PA7},
