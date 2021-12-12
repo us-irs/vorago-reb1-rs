@@ -1,9 +1,8 @@
+use embedded_hal::{blocking::spi::Transfer, spi::FullDuplex};
 use max116xx_10bit::{
     Error, ExternallyClocked, InternallyClockedInternallyTimedSerialInterface, Max11619,
     Max116xx10Bit, RefMode, WithoutWakeupDelay,
 };
-use embedded_hal::blocking::spi::Transfer;
-use embedded_hal::spi::FullDuplex;
 use va108xx_hal::gpio::{Floating, Input, Pin, PA14};
 
 pub type Max11619ExternallyClocked<SPI> =
