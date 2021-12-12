@@ -1,6 +1,6 @@
 [package]
 name = "vorago-reb1"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
 edition = "2021"
 description = "Board Support Crate for the Vorago REB1 development board"
@@ -19,8 +19,7 @@ embedded-hal = "0.2.6"
 path = "../max116xx-10bit"
 
 [dependencies.va108xx-hal]
-path = "../va108xx-hal"
-# version = "0.4.1"
+version = "0.4.2"
 features = ["rt"]
 
 [features]
@@ -32,15 +31,3 @@ panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
 rtt-target = { version = "0.3", features = ["cortex-m"] }
 panic-halt = "0.2"
 nb = "1.0.0"
-
-[[example]]
-name = "blinky-button-rtic"
-required-features = ["rt"]
-
-[[example]]
-name = "adxl343-accelerometer"
-required-features = ["rt"]
-
-[[example]]
-name = "max11619-adc"
-required-features = ["rt", "nb"]
