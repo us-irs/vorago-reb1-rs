@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## [v0.3.0]
+
+- Completed baseline features to support all sensors on the REB1 sevice
+- Relicensed as Apache-2.0 and moved to https://egit.irs.uni-stuttgart.de/rust/vorago-reb1
+
 ## [v0.2.3]
 
 - Added basic accelerometer example. Board in not populated so it is not complete, but
