@@ -1,13 +1,13 @@
 //! MAX11619 ADC example applikcation
 #![no_main]
 #![no_std]
-
-use core::panic;
-
 use cortex_m_rt::entry;
-use embedded_hal::spi;
+use embedded_hal::{blocking::delay::DelayUs, spi};
+use max116xx_10bit::VoltageRefMode;
+use max116xx_10bit::{AveragingConversions, AveragingResults};
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
+use va108xx_hal::timer::CountDownTimer;
 use va108xx_hal::{
     gpio::PinsA,
     pac::{self, interrupt, SPIB},
@@ -16,14 +16,15 @@ use va108xx_hal::{
     timer::{default_ms_irq_handler, set_up_ms_timer, Delay},
 };
 use vorago_reb1::max11619::{
-    max11619_externally_clocked, max11619_internally_clocked, EocPin, AN2_CHANNEL,
-    POTENTIOMETER_CHANNEL,
+    max11619_externally_clocked_no_wakeup, max11619_externally_clocked_with_wakeup,
+    max11619_internally_clocked, EocPin, AN2_CHANNEL, POTENTIOMETER_CHANNEL,
 };
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ExampleMode {
     UsingEoc,
     NotUsingEoc,
+    NotUsingEocWithDelay,
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -31,9 +32,10 @@ pub enum ReadMode {
     Single,
     Multiple,
     MultipleNToHighest,
+    AverageN,
 }
 
-const EXAMPLE_MODE: ExampleMode = ExampleMode::NotUsingEoc;
+const EXAMPLE_MODE: ExampleMode = ExampleMode::UsingEoc;
 const READ_MODE: ReadMode = ReadMode::Multiple;
 
 #[entry]
@@ -89,6 +91,10 @@ fn main() -> ! {
         ExampleMode::UsingEoc => {
             spi_example_internally_clocked(spi, delay, pinsa.pa14.into_floating_input());
         }
+        ExampleMode::NotUsingEocWithDelay => {
+            let delay_us = CountDownTimer::new(&mut dp.SYSCONFIG, 50.mhz(), dp.TIM2);
+            spi_example_externally_clocked_with_delay(spi, delay, delay_us);
+        }
     }
 }
 
@@ -97,9 +103,17 @@ fn OC0() {
     default_ms_irq_handler();
 }
 
+/// Use the SPI clock as the conversion clock
 fn spi_example_externally_clocked(spi: SpiBase<SPIB>, mut delay: Delay) -> ! {
-    let mut adc = max11619_externally_clocked(spi)
+    let mut adc = max11619_externally_clocked_no_wakeup(spi)
         .expect("Creating externally clocked MAX11619 device failed");
+    if READ_MODE == ReadMode::AverageN {
+        adc.averaging(
+            AveragingConversions::FourConversions,
+            AveragingResults::FourResults,
+        )
+        .expect("Error setting up averaging register");
+    }
     let mut cmd_buf: [u8; 32] = [0; 32];
     let mut counter = 0;
     loop {
@@ -108,50 +122,36 @@ fn spi_example_externally_clocked(spi: SpiBase<SPIB>, mut delay: Delay) -> ! {
         match READ_MODE {
             ReadMode::Single => {
                 rprintln!("Reading single potentiometer channel");
-                let pot_val = match adc.read_single_channel(&mut cmd_buf, POTENTIOMETER_CHANNEL) {
-                    Ok(pot_val) => pot_val,
-                    _ => {
-                        panic!("Creating externally clocked MAX11619 ADC failed");
-                    }
-                };
+                let pot_val = adc
+                    .read_single_channel(&mut cmd_buf, POTENTIOMETER_CHANNEL)
+                    .expect("Creating externally clocked MAX11619 ADC failed");
                 rprintln!("Single channel read:");
                 rprintln!("\tPotentiometer value: {}", pot_val);
             }
             ReadMode::Multiple => {
                 let mut res_buf: [u16; 4] = [0; 4];
-                match adc.read_multiple_channels_0_to_n(
+                adc.read_multiple_channels_0_to_n(
                     &mut cmd_buf,
                     &mut res_buf.iter_mut(),
                     POTENTIOMETER_CHANNEL,
-                ) {
-                    Ok(_) => {
-                        rprintln!("Multi channel read from 0 to 3:");
-                        rprintln!("\tAN0 value: {}", res_buf[0]);
-                        rprintln!("\tAN1 value: {}", res_buf[1]);
-                        rprintln!("\tAN2 value: {}", res_buf[2]);
-                        rprintln!("\tAN3 / Potentiometer value: {}", res_buf[3]);
-                    }
-                    _ => {
-                        panic!("Multi-Channel read failed");
-                    }
-                }
+                )
+                .expect("Multi-Channel read failed");
+                print_res_buf(&res_buf);
             }
             ReadMode::MultipleNToHighest => {
                 let mut res_buf: [u16; 2] = [0; 2];
-                match adc.read_multiple_channels_n_to_highest(
+                adc.read_multiple_channels_n_to_highest(
                     &mut cmd_buf,
                     &mut res_buf.iter_mut(),
                     AN2_CHANNEL,
-                ) {
-                    Ok(_) => {
-                        rprintln!("Multi channel read from 2 to 3:");
-                        rprintln!("\tAN2 value: {}", res_buf[0]);
-                        rprintln!("\tAN3 / Potentiometer value: {}", res_buf[1]);
-                    }
-                    _ => {
-                        panic!("Multi-Channel read failed");
-                    }
-                }
+                )
+                .expect("Multi-Channel read failed");
+                rprintln!("Multi channel read from 2 to 3:");
+                rprintln!("\tAN2 value: {}", res_buf[0]);
+                rprintln!("\tAN3 / Potentiometer value: {}", res_buf[1]);
+            }
+            ReadMode::AverageN => {
+                rprintln!("Scanning and averaging not possible for externally clocked mode");
             }
         }
         counter += 1;
@@ -159,22 +159,122 @@ fn spi_example_externally_clocked(spi: SpiBase<SPIB>, mut delay: Delay) -> ! {
     }
 }
 
-fn spi_example_internally_clocked(spi: SpiBase<SPIB>, mut delay: Delay, mut eoc_pin: EocPin) -> ! {
-    let mut adc = max11619_internally_clocked(spi).expect("Creaintg MAX116xx device failed");
+fn spi_example_externally_clocked_with_delay(
+    spi: SpiBase<SPIB>,
+    mut delay: Delay,
+    mut delay_us: impl DelayUs<u8>,
+) -> ! {
+    let mut adc =
+        max11619_externally_clocked_with_wakeup(spi).expect("Creating MAX116xx device failed");
+    let mut cmd_buf: [u8; 32] = [0; 32];
     let mut counter = 0;
     loop {
         rprintln!("-- Measurement {} --", counter);
-        match adc.request_single_channel(POTENTIOMETER_CHANNEL) {
-            Ok(_) => (),
-            _ => panic!("Requesting single channel value  failed"),
-        };
 
-        let pot_val = match nb::block!(adc.get_single_channel(&mut eoc_pin)) {
-            Ok(pot_val) => pot_val,
-            _ => panic!("Reading single channel value  failed"),
-        };
-        rprintln!("\tPotentiometer value: {}", pot_val);
+        match READ_MODE {
+            ReadMode::Single => {
+                rprintln!("Reading single potentiometer channel");
+                let pot_val = adc
+                    .read_single_channel(&mut cmd_buf, POTENTIOMETER_CHANNEL, &mut delay_us)
+                    .expect("Creating externally clocked MAX11619 ADC failed");
+                rprintln!("Single channel read:");
+                rprintln!("\tPotentiometer value: {}", pot_val);
+            }
+            ReadMode::Multiple => {
+                let mut res_buf: [u16; 4] = [0; 4];
+                adc.read_multiple_channels_0_to_n(
+                    &mut cmd_buf,
+                    &mut res_buf.iter_mut(),
+                    POTENTIOMETER_CHANNEL,
+                    &mut delay_us,
+                )
+                .expect("Multi-Channel read failed");
+                print_res_buf(&res_buf);
+            }
+            ReadMode::MultipleNToHighest => {
+                let mut res_buf: [u16; 2] = [0; 2];
+                adc.read_multiple_channels_n_to_highest(
+                    &mut cmd_buf,
+                    &mut res_buf.iter_mut(),
+                    AN2_CHANNEL,
+                    &mut delay_us,
+                )
+                .expect("Multi-Channel read failed");
+                rprintln!("Multi channel read from 2 to 3:");
+                rprintln!("\tAN2 value: {}", res_buf[0]);
+                rprintln!("\tAN3 / Potentiometer value: {}", res_buf[1]);
+            }
+            ReadMode::AverageN => {
+                rprintln!("Scanning and averaging not possible for externally clocked mode");
+            }
+        }
         counter += 1;
         delay.delay_ms(500);
     }
+}
+
+/// This function uses the EOC pin to determine whether the conversion finished
+fn spi_example_internally_clocked(spi: SpiBase<SPIB>, mut delay: Delay, eoc_pin: EocPin) -> ! {
+    let mut adc = max11619_internally_clocked(
+        spi,
+        eoc_pin,
+        VoltageRefMode::ExternalSingleEndedNoWakeupDelay,
+    )
+    .expect("Creating MAX116xx device failed");
+    let mut counter = 0;
+    loop {
+        rprintln!("-- Measurement {} --", counter);
+
+        match READ_MODE {
+            ReadMode::Single => {
+                adc.request_single_channel(POTENTIOMETER_CHANNEL)
+                    .expect("Requesting single channel value  failed");
+
+                let pot_val = nb::block!(adc.get_single_channel())
+                    .expect("Reading single channel value  failed");
+                rprintln!("\tPotentiometer value: {}", pot_val);
+            }
+            ReadMode::Multiple => {
+                adc.request_multiple_channels_0_to_n(POTENTIOMETER_CHANNEL)
+                    .expect("Requesting single channel value  failed");
+                let mut res_buf: [u16; 4] = [0; 4];
+                nb::block!(adc.get_multi_channel(&mut res_buf.iter_mut()))
+                    .expect("Requesting multiple channel values failed");
+                print_res_buf(&res_buf);
+            }
+            ReadMode::MultipleNToHighest => {
+                adc.request_multiple_channels_n_to_highest(AN2_CHANNEL)
+                    .expect("Requesting single channel value  failed");
+                let mut res_buf: [u16; 4] = [0; 4];
+                nb::block!(adc.get_multi_channel(&mut res_buf.iter_mut()))
+                    .expect("Requesting multiple channel values failed");
+                rprintln!("Multi channel read from 2 to 3:");
+                rprintln!("\tAN2 value: {}", res_buf[0]);
+                rprintln!("\tAN3 / Potentiometer value: {}", res_buf[1]);
+            }
+            ReadMode::AverageN => {
+                adc.request_channel_n_repeatedly(POTENTIOMETER_CHANNEL)
+                    .expect("Reading channel multiple times failed");
+                let mut res_buf: [u16; 16] = [0; 16];
+                nb::block!(adc.get_multi_channel(&mut res_buf.iter_mut()))
+                    .expect("Requesting multiple channel values failed");
+                rprintln!("Reading potentiometer 4 times");
+                rprintln!("\tValue 0: {}", res_buf[0]);
+                rprintln!("\tValue 1: {}", res_buf[1]);
+                rprintln!("\tValue 2: {}", res_buf[2]);
+                rprintln!("\tValue 3: {}", res_buf[3]);
+            }
+        }
+
+        counter += 1;
+        delay.delay_ms(500);
+    }
+}
+
+fn print_res_buf(buf: &[u16; 4]) {
+    rprintln!("Multi channel read from 0 to 3:");
+    rprintln!("\tAN0 value: {}", buf[0]);
+    rprintln!("\tAN1 value: {}", buf[1]);
+    rprintln!("\tAN2 value: {}", buf[2]);
+    rprintln!("\tAN3 / Potentiometer value: {}", buf[3]);
 }
