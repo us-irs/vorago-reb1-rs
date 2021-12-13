@@ -79,7 +79,7 @@ fn main() -> ! {
 
     loop {
         delay.delay_ms(500);
-        todo!("Not implemented for now, is not populated on the board..");
+        unimplemented!("Not implemented for now, is not populated on the board..");
     }
 }
 

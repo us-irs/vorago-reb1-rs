@@ -14,7 +14,6 @@ use va108xx_hal::{
     prelude::*,
     spi::{Spi, SpiBase, SpiConfig, TransferConfig},
     timer::{default_ms_irq_handler, set_up_ms_timer, Delay},
-    utility::*,
 };
 use vorago_reb1::max11619::{
     max11619_externally_clocked, max11619_internally_clocked, EocPin, AN2_CHANNEL,
@@ -56,18 +55,13 @@ fn main() -> ! {
     }
 
     let pinsa = PinsA::new(&mut dp.SYSCONFIG, None, dp.PORTA);
-    let mut spi_cfg = SpiConfig::default();
-    spi_cfg.scrdv = 0x07;
+    let spi_cfg = SpiConfig::default();
     let (sck, mosi, miso) = (
         pinsa.pa20.into_funsel_2(),
         pinsa.pa19.into_funsel_2(),
         pinsa.pa18.into_funsel_2(),
     );
 
-    port_mux(&mut dp.IOCONFIG, PortSel::PortB, 16, Funsel::Funsel1).ok();
-    // port_mux(&mut dp.IOCONFIG, PortSel::PortB, 17, Funsel::Funsel1).ok();
-    port_mux(&mut dp.IOCONFIG, PortSel::PortB, 18, Funsel::Funsel1).ok();
-    port_mux(&mut dp.IOCONFIG, PortSel::PortB, 19, Funsel::Funsel1).ok();
     // Set the accelerometer chip select low in case the board slot is populated
     let mut accel_cs = pinsa.pa16.into_push_pull_output();
     accel_cs
