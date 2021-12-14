@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## [v0.3.1]
+
+- Updated ADC code and dependency
+
 ## [v0.3.0]
 
 - Completed baseline features to support all sensors on the REB1 sevice
