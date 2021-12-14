@@ -1,6 +1,6 @@
 [package]
 name = "vorago-reb1"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
 edition = "2021"
 description = "Board Support Crate for the Vorago REB1 development board"
@@ -15,7 +15,7 @@ cortex-m = "0.7.3"
 cortex-m-rt = "0.7.0"
 embedded-hal = "0.2.6"
 dummy-pin = "0.1.1"
-max116xx-10bit = "0.1.0"
+max116xx-10bit = "0.2.1"
 
 [dependencies.va108xx-hal]
 version = "0.4.2"
