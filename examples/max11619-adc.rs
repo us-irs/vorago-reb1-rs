@@ -14,6 +14,7 @@ use va108xx_hal::{
     prelude::*,
     spi::{Spi, SpiBase, SpiConfig, TransferConfig},
     timer::{default_ms_irq_handler, set_up_ms_timer, Delay},
+    utility::{port_mux, PortSel, Funsel}
 };
 use vorago_reb1::max11619::{
     max11619_externally_clocked_no_wakeup, max11619_externally_clocked_with_wakeup,
@@ -35,8 +36,15 @@ pub enum ReadMode {
     AverageN,
 }
 
-const EXAMPLE_MODE: ExampleMode = ExampleMode::UsingEoc;
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum MuxMode {
+    None,
+    PortB19to17
+}
+
+const EXAMPLE_MODE: ExampleMode = ExampleMode::NotUsingEoc;
 const READ_MODE: ReadMode = ReadMode::Multiple;
+const MUX_MODE: MuxMode = MuxMode::PortB19to17;
 
 #[entry]
 fn main() -> ! {
@@ -64,6 +72,12 @@ fn main() -> ! {
         pinsa.pa18.into_funsel_2(),
     );
 
+    if MUX_MODE == MuxMode::PortB19to17 {
+        port_mux(&mut dp.IOCONFIG, PortSel::PortB, 19, Funsel::Funsel1).ok();
+        port_mux(&mut dp.IOCONFIG, PortSel::PortB, 18, Funsel::Funsel1).ok();
+        port_mux(&mut dp.IOCONFIG, PortSel::PortB, 17, Funsel::Funsel1).ok();
+        port_mux(&mut dp.IOCONFIG, PortSel::PortB, 16, Funsel::Funsel1).ok();
+    }
     // Set the accelerometer chip select low in case the board slot is populated
     let mut accel_cs = pinsa.pa16.into_push_pull_output();
     accel_cs
