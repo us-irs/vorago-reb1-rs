@@ -14,7 +14,7 @@ use va108xx_hal::{
     prelude::*,
     spi::{Spi, SpiBase, SpiConfig, TransferConfig},
     timer::{default_ms_irq_handler, set_up_ms_timer, Delay},
-    utility::{port_mux, PortSel, Funsel}
+    utility::{port_mux, Funsel, PortSel},
 };
 use vorago_reb1::max11619::{
     max11619_externally_clocked_no_wakeup, max11619_externally_clocked_with_wakeup,
@@ -39,7 +39,7 @@ pub enum ReadMode {
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum MuxMode {
     None,
-    PortB19to17
+    PortB19to17,
 }
 
 const EXAMPLE_MODE: ExampleMode = ExampleMode::NotUsingEoc;
