@@ -9,10 +9,10 @@ mod app {
     use va108xx_hal::{
         clock::{set_clk_div_register, FilterClkSel},
         gpio::{FilterType, InterruptEdge, PinsA},
-        pac::{self, interrupt},
+        pac,
         prelude::*,
         time::Hertz,
-        timer::{default_ms_irq_handler, set_up_ms_timer},
+        timer::{default_ms_irq_handler, set_up_ms_timer, IrqCfg},
     };
     use vorago_reb1::button::Button;
     use vorago_reb1::leds::Leds;
@@ -66,9 +66,9 @@ mod app {
         // Configure an edge interrupt on the button and route it to interrupt vector 15
         let mut button = Button::new(pinsa.pa11.into_floating_input()).edge_irq(
             edge_irq,
+            IrqCfg::new(pac::interrupt::OC15, true, true),
             Some(&mut dp.SYSCONFIG),
-            &mut dp.IRQSEL,
-            pac::interrupt::OC15,
+            Some(&mut dp.IRQSEL),
         );
 
         if mode == PressMode::Toggle {
@@ -80,14 +80,6 @@ mod app {
                 Hertz::from(50.khz()).0,
             );
         }
-
-        set_up_ms_timer(
-            &mut dp.SYSCONFIG,
-            &mut dp.IRQSEL,
-            50.mhz().into(),
-            dp.TIM0,
-            interrupt::OC0,
-        );
         let mut leds = Leds::new(
             pinsa.pa10.into_push_pull_output(),
             pinsa.pa7.into_push_pull_output(),
@@ -96,8 +88,13 @@ mod app {
         for led in leds.iter_mut() {
             led.off();
         }
-        // Activate the IRQs so the processors sees them as well
-        unmask_irqs();
+        set_up_ms_timer(
+            IrqCfg::new(pac::Interrupt::OC0, true, true),
+            &mut dp.SYSCONFIG,
+            Some(&mut dp.IRQSEL),
+            50.mhz(),
+            dp.TIM0,
+        );
         (Shared {}, Local { leds, button, mode }, init::Monotonics())
     }
 
@@ -126,13 +123,6 @@ mod app {
     #[task(binds = OC0)]
     fn ms_tick(_cx: ms_tick::Context) {
         default_ms_irq_handler();
-    }
-
-    fn unmask_irqs() {
-        unsafe {
-            cortex_m::peripheral::NVIC::unmask(pac::Interrupt::OC0);
-            cortex_m::peripheral::NVIC::unmask(pac::Interrupt::OC15);
-        }
     }
 
     fn prompt_mode(mut down_channel: rtt_target::DownChannel) -> PressMode {

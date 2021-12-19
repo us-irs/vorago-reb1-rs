@@ -9,7 +9,7 @@
 use cortex_m_rt::entry;
 use embedded_hal::digital::v2::ToggleableOutputPin;
 use panic_halt as _;
-use va108xx_hal::{gpio::pins::PinsA, pac, prelude::*, timer::set_up_ms_timer};
+use va108xx_hal::{gpio::pins::PinsA, pac, prelude::*, timer::set_up_ms_delay_provider};
 use vorago_reb1::leds::Leds;
 
 // REB LED pin definitions. All on port A
@@ -64,13 +64,7 @@ fn main() -> ! {
             let mut led1 = pins.pa10.into_push_pull_output();
             let mut led2 = pins.pa7.into_push_pull_output();
             let mut led3 = pins.pa6.into_push_pull_output();
-            let mut delay = set_up_ms_timer(
-                &mut dp.SYSCONFIG,
-                &mut dp.IRQSEL,
-                50.mhz().into(),
-                dp.TIM0,
-                pac::Interrupt::OC0,
-            );
+            let mut delay = set_up_ms_delay_provider(&mut dp.SYSCONFIG, 50.mhz(), dp.TIM0);
             for _ in 0..10 {
                 led1.set_low().ok();
                 led2.set_low().ok();
@@ -97,13 +91,7 @@ fn main() -> ! {
                 pinsa.pa7.into_push_pull_output(),
                 pinsa.pa6.into_push_pull_output(),
             );
-            let mut delay = set_up_ms_timer(
-                &mut dp.SYSCONFIG,
-                &mut dp.IRQSEL,
-                50.mhz().into(),
-                dp.TIM0,
-                pac::Interrupt::OC0,
-            );
+            let mut delay = set_up_ms_delay_provider(&mut dp.SYSCONFIG, 50.mhz(), dp.TIM0);
             loop {
                 for _ in 0..10 {
                     // Blink all LEDs quickly
