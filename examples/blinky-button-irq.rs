@@ -14,7 +14,7 @@ use va108xx_hal::{
     pac::{self, interrupt},
     prelude::*,
     time::Hertz,
-    timer::{default_ms_irq_handler, set_up_ms_timer},
+    timer::{default_ms_irq_handler, set_up_ms_timer, IrqCfg},
 };
 use vorago_reb1::button::Button;
 use vorago_reb1::leds::Leds;
@@ -45,9 +45,9 @@ fn main() -> ! {
     // Configure an edge interrupt on the button and route it to interrupt vector 15
     let mut button = Button::new(pinsa.pa11.into_floating_input()).edge_irq(
         edge_irq,
+        IrqCfg::new(pac::interrupt::OC15, true, true),
         Some(&mut dp.SYSCONFIG),
-        &mut dp.IRQSEL,
-        pac::interrupt::OC15,
+        Some(&mut dp.IRQSEL),
     );
 
     if PRESS_MODE == PressMode::Toggle {
@@ -61,11 +61,11 @@ fn main() -> ! {
     }
 
     set_up_ms_timer(
+        IrqCfg::new(pac::Interrupt::OC0, true, true),
         &mut dp.SYSCONFIG,
-        &mut dp.IRQSEL,
-        50.mhz().into(),
+        Some(&mut dp.IRQSEL),
+        50.mhz(),
         dp.TIM0,
-        interrupt::OC0,
     );
     let mut leds = Leds::new(
         pinsa.pa10.into_push_pull_output(),
@@ -75,21 +75,12 @@ fn main() -> ! {
     for led in leds.iter_mut() {
         led.off();
     }
-    // Activate the IRQs so the processors sees them as well
-    unmask_irqs();
     // Make both button and LEDs accessible from the IRQ handler as well
     cortex_m::interrupt::free(|cs| {
         LEDS.borrow(cs).replace(Some(leds));
         BUTTON.borrow(cs).replace(Some(button));
     });
     loop {}
-}
-
-fn unmask_irqs() {
-    unsafe {
-        cortex_m::peripheral::NVIC::unmask(pac::Interrupt::OC0);
-        cortex_m::peripheral::NVIC::unmask(pac::Interrupt::OC15);
-    }
 }
 
 #[interrupt]

@@ -1,6 +1,7 @@
 //! MAX11619 ADC example applikcation
 #![no_main]
 #![no_std]
+
 use cortex_m_rt::entry;
 use embedded_hal::{blocking::delay::DelayUs, spi};
 use max116xx_10bit::VoltageRefMode;
@@ -13,7 +14,7 @@ use va108xx_hal::{
     pac::{self, interrupt, SPIB},
     prelude::*,
     spi::{Spi, SpiBase, SpiConfig, TransferConfig},
-    timer::{default_ms_irq_handler, set_up_ms_timer, Delay},
+    timer::{default_ms_irq_handler, set_up_ms_timer, Delay, IrqCfg},
     utility::{port_mux, Funsel, PortSel},
 };
 use vorago_reb1::max11619::{
@@ -44,7 +45,7 @@ pub enum MuxMode {
 
 const EXAMPLE_MODE: ExampleMode = ExampleMode::NotUsingEoc;
 const READ_MODE: ReadMode = ReadMode::Multiple;
-const MUX_MODE: MuxMode = MuxMode::PortB19to17;
+const MUX_MODE: MuxMode = MuxMode::None;
 
 #[entry]
 fn main() -> ! {
@@ -53,11 +54,11 @@ fn main() -> ! {
 
     let mut dp = pac::Peripherals::take().unwrap();
     let tim0 = set_up_ms_timer(
+        IrqCfg::new(pac::Interrupt::OC0, true, true),
         &mut dp.SYSCONFIG,
-        &mut dp.IRQSEL,
-        50.mhz().into(),
+        Some(&mut dp.IRQSEL),
+        50.mhz(),
         dp.TIM0,
-        interrupt::OC0,
     );
     let delay = Delay::new(tim0);
     unsafe {

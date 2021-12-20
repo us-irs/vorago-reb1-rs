@@ -8,6 +8,7 @@ use va108xx_hal::{
     gpio::{FilterClkSel, FilterType, InputFloating, InterruptEdge, InterruptLevel, Pin, PA11},
     pac,
     prelude::*,
+    utility::IrqCfg,
 };
 
 pub struct Button {
@@ -28,30 +29,28 @@ impl Button {
     }
 
     /// Configures an IRQ on edge.
-    ///
-    /// Please note that you still have to unpend the Cortex-M interrupt yourself
     pub fn edge_irq(
         mut self,
         edge_type: InterruptEdge,
+        irq_cfg: IrqCfg,
         syscfg: Option<&mut pac::SYSCONFIG>,
-        irqsel: &mut pac::IRQSEL,
-        irq: pac::interrupt,
+        irqsel: Option<&mut pac::IRQSEL>,
     ) -> Self {
-        self.button = self.button.interrupt_edge(edge_type, syscfg, irqsel, irq);
+        self.button = self
+            .button
+            .interrupt_edge(edge_type, irq_cfg, syscfg, irqsel);
         self
     }
 
     /// Configures an IRQ on level.
-    ///
-    /// Please note that you still have to unpend the Cortex-M interrupt yourself
     pub fn level_irq(
         mut self,
         level: InterruptLevel,
+        irq_cfg: IrqCfg,
         syscfg: Option<&mut pac::SYSCONFIG>,
-        irqsel: &mut pac::IRQSEL,
-        irq: pac::interrupt,
+        irqsel: Option<&mut pac::IRQSEL>,
     ) -> Self {
-        self.button = self.button.interrupt_level(level, syscfg, irqsel, irq);
+        self.button = self.button.interrupt_level(level, irq_cfg, syscfg, irqsel);
         self
     }
 

@@ -10,10 +10,10 @@ use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
 use va108xx_hal::{
     gpio::PinsA,
-    pac::{self, interrupt},
+    pac,
     prelude::*,
     spi::{Spi, SpiConfig, TransferConfig},
-    timer::{default_ms_irq_handler, set_up_ms_timer, Delay},
+    timer::set_up_ms_delay_provider,
 };
 
 const READ_MASK: u8 = 1 << 7;
@@ -28,18 +28,7 @@ fn main() -> ! {
     rtt_init_print!();
     rprintln!("-- Vorago Accelerometer Example --");
     let mut dp = pac::Peripherals::take().unwrap();
-    let tim0 = set_up_ms_timer(
-        &mut dp.SYSCONFIG,
-        &mut dp.IRQSEL,
-        50.mhz().into(),
-        dp.TIM0,
-        interrupt::OC0,
-    );
-    let mut delay = Delay::new(tim0);
-    unsafe {
-        cortex_m::peripheral::NVIC::unmask(pac::Interrupt::OC0);
-    }
-
+    let mut delay = set_up_ms_delay_provider(&mut dp.SYSCONFIG, 50.mhz(), dp.TIM0);
     let pinsa = PinsA::new(&mut dp.SYSCONFIG, None, dp.PORTA);
     let spi_cfg = SpiConfig::default();
     let (sck, mosi, miso) = (
@@ -78,12 +67,7 @@ fn main() -> ! {
         .expect("Enabling measurement mode failed");
 
     loop {
-        delay.delay_ms(500);
+        delay.delay_ms(500_u16);
         unimplemented!("Not implemented for now, is not populated on the board..");
     }
-}
-
-#[interrupt]
-fn OC0() {
-    default_ms_irq_handler();
 }
