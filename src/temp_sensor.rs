@@ -67,15 +67,14 @@ impl Adt75TempSensor {
         let mut reply: [u8; 2] = [0; 2];
         self.sensor_if.read(ADT75_I2C_ADDR, &mut reply)?;
         let adc_code = (((reply[0] as u16) << 8) | reply[1] as u16) >> 4;
-        let temp_celcius: f32;
-        if ((adc_code >> 11) & 0x01) == 0 {
+        let temp_celcius: f32 = if ((adc_code >> 11) & 0x01) == 0 {
             // Sign bit not set, positiv value
             // Divide ADC code by 16 according to datasheet
-            temp_celcius = adc_code as f32 / 16.0;
+            adc_code as f32 / 16.0
         } else {
             // Calculation for negative values, assuming all 12 bits are used
-            temp_celcius = (adc_code - 4096) as f32 / 16.0;
-        }
+            (adc_code - 4096) as f32 / 16.0
+        };
         Ok(temp_celcius)
     }
 }
