@@ -135,10 +135,10 @@ mod app {
             for i in 0..read {
                 let val = read_buf[i] as char;
                 if val == '0' || val == '1' {
-                    if val == '0' {
-                        return PressMode::Toggle;
+                    return if val == '0' {
+                        PressMode::Toggle
                     } else {
-                        return PressMode::Keep;
+                        PressMode::Keep
                     }
                 }
             }
