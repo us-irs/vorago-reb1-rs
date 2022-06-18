@@ -139,7 +139,7 @@ mod app {
                         PressMode::Toggle
                     } else {
                         PressMode::Keep
-                    }
+                    };
                 }
             }
         }
