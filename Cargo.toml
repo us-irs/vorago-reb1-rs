@@ -1,32 +1,38 @@
 [package]
 name = "vorago-reb1"
-version = "0.3.2"
+version = "0.4.0"
 authors = ["Robin Mueller <robin.mueller.m@gmail.com>"]
 edition = "2021"
 description = "Board Support Crate for the Vorago REB1 development board"
-homepage = "https://github.com/robamu/vorago-reb1-rs"
-repository = "https://github.com/robamu/vorago-reb1-rs"
-license = "MIT OR Apache-2.0"
+homepage = "https://egit.irs.uni-stuttgart.de/rust/vorago-reb1"
+repository = "https://egit.irs.uni-stuttgart.de/rust/vorago-reb1"
+license = "Apache-2.0"
 keywords = ["no-std", "reb1", "cortex-m", "vorago", "va108xx"]
-categories = ["embedded", "no-std", "hardware-support"]
+categories = ["aerospace", "embedded", "no-std", "hardware-support"]
 
 [dependencies]
-cortex-m = "0.7.3"
-cortex-m-rt = "0.7.0"
-embedded-hal = "0.2.6"
+cortex-m = "0.7.5"
+cortex-m-rt = "0.7.1"
+embedded-hal = "0.2.7"
 dummy-pin = "0.1.1"
 max116xx-10bit = "0.2.1"
 
 [dependencies.va108xx-hal]
-version = "0.5.0"
+version = "0.5.1"
 features = ["rt"]
 
 [features]
 rt = ["va108xx-hal/rt"]
 
 [dev-dependencies]
-cortex-m-rtic = "0.6.0-rc.4"
-panic-rtt-target = { version = "0.1", features = ["cortex-m"] }
-rtt-target = { version = "0.3", features = ["cortex-m"] }
+cortex-m-rtic = "1.1.2"
 panic-halt = "0.2"
 nb = "1.0.0"
+
+[dev-dependencies.rtt-target]
+version = "0.3"
+features = ["cortex-m"]
+
+[dev-dependencies.panic-rtt-target]
+version = "0.1"
+features = ["cortex-m"]
