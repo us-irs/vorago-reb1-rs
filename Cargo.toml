@@ -11,23 +11,23 @@ keywords = ["no-std", "reb1", "cortex-m", "vorago", "va108xx"]
 categories = ["aerospace", "embedded", "no-std", "hardware-support"]
 
 [dependencies]
-cortex-m = "0.7.5"
-cortex-m-rt = "0.7.1"
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
 embedded-hal = "0.2.7"
-dummy-pin = "0.1.1"
-max116xx-10bit = "0.2.1"
+dummy-pin = "0.1"
+max116xx-10bit = "0.2"
 
 [dependencies.va108xx-hal]
-version = "0.5.1"
+version = "0.5"
 features = ["rt"]
 
 [features]
 rt = ["va108xx-hal/rt"]
 
 [dev-dependencies]
-cortex-m-rtic = "1.1.2"
+cortex-m-rtic = "1.1"
 panic-halt = "0.2"
-nb = "1.0.0"
+nb = "1"
 
 [dev-dependencies.rtt-target]
 version = "0.3"
