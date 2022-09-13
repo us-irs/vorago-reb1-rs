@@ -21,7 +21,7 @@ pub struct Adt75TempSensor {
     current_reg: RegAddresses,
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum RegAddresses {
     Temperature = 0x00,
     Configuration = 0x01,
