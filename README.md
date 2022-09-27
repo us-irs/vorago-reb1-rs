@@ -58,8 +58,9 @@ A `jlink.gdb` file is provided to allow flashing of the board from the command l
 
 ## Debugging with VS Code
 
-The REB1 board features an on-board JTAG, so all that is required to flash the board is a
-Micro-USB cable and an 
+The REB1 board features an on-board JTAG, so all that is required to debug the board is a
+Micro-USB cable.
+
 You can debug applications on the REB1 board with a graphical user interface using VS Code with
 the [`Cortex-Debug` plugin](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug).
 
